@@ -40,14 +40,19 @@ def get_user_uploads(username, version=2):
     uri = 'http://gdata.youtube.com/feeds/api/users/%s/uploads?v=%d' % (username, version)
     return parse_video_feed(service.GetYouTubeVideoFeed(uri))
 
-def print_video_feed(data):
+def print_video_feed(data, outfile="-"):
     """Print short description of each entry."""
+    if outfile == '-':
+        fd = sys.stdout
+    else:
+        fd = open(outfile, 'w')
     for id in data:
-        print 'Video title: %(title)s' % data[id]
-        print 'Video published on: %(date)s' % data[id]
-        print 'Video description: %(desc)s' % data[id]
-        print 'Video view count: %(view count)d' % data[id]
-        print "---\n"
+        fd.write('Video title: %(title)s\n' % data[id])
+        fd.write('Video published on: %(date)s\n' % data[id])
+        fd.write('Video description: %(desc)s\n' % data[id])
+        fd.write('Video view count: %(view count)d\n' % data[id])
+        fd.write('---\n\n')
+    fd.close()
 
 def plot_video_stat(data, outfile="output.png"):
     """Plot video statistics using Gnuplot."""
