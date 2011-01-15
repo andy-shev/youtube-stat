@@ -15,6 +15,7 @@ import dateutil.parser
 import datetime
 import Gnuplot
 import operator
+from optparse import OptionParser
 
 import gdata.youtube.service
 
@@ -93,9 +94,28 @@ def plot_video_stat(data, outfile="-"):
 
 def main(argv):
     """MAIN"""
-    data = get_user_uploads(argv[1])
-    print_video_feed(data)
-    plot_video_stat(data)
+    parser = OptionParser(usage='%prog [options] <youtube_user_name>')
+    parser.add_option("--show", dest="show", action="store_true", default=False,
+            help="show the feed entries")
+    parser.add_option("--output", dest="output", default="-",
+            help="save output to the FILE")
+    parser.add_option("--plot", dest="plot", action="store_true", default=False,
+            help="plot chart with statistics")
+    parser.add_option("--plot-file", dest="plot_file", default="output.png",
+            help="plot chart to the FILE")
+    (opts, args) = parser.parse_args(argv)
+
+    if len(args) == 1:
+        parser.error("incorrect number of arguments")
+
+    if not opts.show and not opts.plot:
+        parser.error("no action asked (--show or --plot)")
+
+    data = get_user_uploads(args[1])
+    if opts.show:
+        print_video_feed(data, opts.output)
+    if opts.plot:
+        plot_video_stat(data, opts.plot_file)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
