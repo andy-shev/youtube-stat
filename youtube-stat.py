@@ -13,6 +13,8 @@ import os
 import sys
 import dateutil.parser
 import datetime
+import Gnuplot
+import operator
 
 import gdata.youtube.service
 
@@ -47,10 +49,43 @@ def print_video_feed(data):
         print 'Video view count: %(view count)d' % data[id]
         print "---\n"
 
+def plot_video_stat(data, outfile="output.png"):
+    """Plot video statistics using Gnuplot."""
+    gp = Gnuplot.Gnuplot()
+
+    gp('set terminal png')
+    gp('set output "%s"' % outfile)
+
+    gp.title('View count versus date of publishing')
+    gp.xlabel('Date')
+    gp.ylabel('View count')
+    gp('set autoscale')
+    gp('set xdata time')
+    gp('set xtics rotate')
+
+    timefmt = "%s"
+    gp('set timefmt "%s"' % timefmt)
+
+    xy = []
+    for id in data:
+        xy.append([
+            id,
+            int(data[id]['date'].strftime(timefmt)),
+            data[id]['view count'],
+        ])
+
+    xy.sort(key=operator.itemgetter(1))
+
+    gpdata = Gnuplot.Data([x[1] for x in xy], [y[2] for y in xy],
+        using='1:2', with_='linespoints')
+
+    gp.plot(gpdata)
+
 def main(argv):
     """MAIN"""
     data = get_user_uploads(argv[1])
     print_video_feed(data)
+    plot_video_stat(data)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
