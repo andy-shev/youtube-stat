@@ -54,12 +54,17 @@ def print_video_feed(data, outfile="-"):
         fd.write('---\n\n')
     fd.close()
 
-def plot_video_stat(data, outfile="output.png"):
+def plot_video_stat(data, outfile="-"):
     """Plot video statistics using Gnuplot."""
     gp = Gnuplot.Gnuplot()
 
+    # Should be first command!
     gp('set terminal png')
-    gp('set output "%s"' % outfile)
+
+    if outfile == '-':
+        gp('set output')
+    else:
+        gp('set output "%s"' % outfile)
 
     gp.title('View count versus date of publishing')
     gp.xlabel('Date')
