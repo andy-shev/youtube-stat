@@ -54,12 +54,13 @@ def get_user_uploads(username, version=2):
         break
     return data
 
-def print_video_feed(data, outfile="-"):
+def print_video_feed(username, data, outfile="-"):
     """Print short description of each entry."""
     if outfile == '-':
         fd = sys.stdout
     else:
         fd = open(outfile, 'w')
+    fd.write('List of videos published by %s\n\n' % username)
     for id in data:
         fd.write('Video title: %(title)s\n' % data[id])
         fd.write('Video published on: %(date)s\n' % data[id])
@@ -68,7 +69,7 @@ def print_video_feed(data, outfile="-"):
         fd.write('---\n\n')
     fd.close()
 
-def plot_video_stat(data, outfile="-"):
+def plot_video_stat(username, data, outfile="-"):
     """Plot video statistics using Gnuplot."""
     gp = Gnuplot.Gnuplot()
 
@@ -80,7 +81,7 @@ def plot_video_stat(data, outfile="-"):
     else:
         gp('set output "%s"' % outfile)
 
-    gp.title('View count versus date of publishing')
+    gp.title('View count versus date of publishing for %s' % username)
     gp.xlabel('Date')
     gp.ylabel('View count')
     gp('set autoscale')
@@ -107,7 +108,7 @@ def plot_video_stat(data, outfile="-"):
 
 def main(argv):
     """MAIN"""
-    parser = OptionParser(usage='%prog [options] <youtube_user_name>')
+    parser = OptionParser(usage='%prog [options] <youtube_username>')
     parser.add_option("--show", dest="show", action="store_true", default=False,
             help="show the feed entries")
     parser.add_option("--output", dest="output", default="-",
@@ -124,11 +125,12 @@ def main(argv):
     if not opts.show and not opts.plot:
         parser.error("no action asked (--show or --plot)")
 
-    data = get_user_uploads(args[1])
+    username = args[1]
+    data = get_user_uploads(username)
     if opts.show:
-        print_video_feed(data, opts.output)
+        print_video_feed(username, data, opts.output)
     if opts.plot:
-        plot_video_stat(data, opts.plot_file)
+        plot_video_stat(username, data, opts.plot_file)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
