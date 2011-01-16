@@ -115,7 +115,7 @@ def main(argv):
             help="save output to the FILE")
     parser.add_option("--plot", dest="plot", action="store_true", default=False,
             help="plot chart with statistics")
-    parser.add_option("--plot-file", dest="plot_file", default="output.png",
+    parser.add_option("--plot-file", dest="plot_file",
             help="plot chart to the FILE")
     (opts, args) = parser.parse_args(argv)
 
@@ -130,7 +130,11 @@ def main(argv):
     if opts.show:
         print_video_feed(username, data, opts.output)
     if opts.plot:
-        plot_video_stat(username, data, opts.plot_file)
+        if opts.plot_file:
+            outfile = opts.plot_file
+        else:
+            outfile = "%s.png" % username
+        plot_video_stat(username, data, outfile)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
