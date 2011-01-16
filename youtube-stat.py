@@ -38,8 +38,21 @@ def parse_video_feed(feed):
 def get_user_uploads(username, version=2):
     """Get user's uploads and gather necessary data."""
     service = gdata.youtube.service.YouTubeService()
-    uri = 'http://gdata.youtube.com/feeds/api/users/%s/uploads?v=%d' % (username, version)
-    return parse_video_feed(service.GetYouTubeVideoFeed(uri))
+    base_uri = 'http://gdata.youtube.com/feeds/api/users/%s/uploads?v=%d' % (username, version)
+    data = {}
+    start_index = 1
+    max_results = 50
+    while True:
+        uri = '%s&start-index=%d&max-results=%d' % (base_uri, start_index, max_results)
+        feed = service.GetYouTubeVideoFeed(uri)
+        entry_data = parse_video_feed(feed)
+        if entry_data:
+            data.update(entry_data)
+            if len(entry_data) == max_results:
+                start_index += max_results
+                continue
+        break
+    return data
 
 def print_video_feed(data, outfile="-"):
     """Print short description of each entry."""
